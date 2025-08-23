@@ -12,11 +12,7 @@
       {
         "language": "python",
         "scopeName": "source.python",
-        "path": "./syntaxes/MagicPython.tmLanguage.json"
-      },
-      {
-        "scopeName": "source.regexp.python",
-        "path": "./syntaxes/MagicRegExp.tmLanguage.json"
+        "path": "./MagicPython.tmLanguage.json"
       }
     ]
   }
