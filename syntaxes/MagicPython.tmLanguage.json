@@ -1,10 +1,4 @@
 {
-	"information_for_contributors": [
-		"This file has been converted from https://github.com/MagicStack/MagicPython/blob/master/grammars/MagicPython.tmLanguage",
-		"If you want to provide a fix or improvement, please create a pull request against the original repository.",
-		"Once accepted there, we are happy to receive an update request."
-	],
-	"version": "https://github.com/MagicStack/MagicPython/commit/7d0f2b22a5ad8fccbd7341bc7b7a715169283044",
 	"name": "MagicPython",
 	"scopeName": "source.python",
 	"patterns": [
@@ -48,6 +42,9 @@
 				},
 				{
 					"include": "#semicolon"
+				},
+				{
+					"include": "#type-alias"
 				}
 			]
 		},
@@ -988,7 +985,7 @@
 			"patterns": [
 				{
 					"name": "meta.class.python",
-					"begin": "(?x)\n  \\s*(class)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (:|\\()\n    )\n",
+					"begin": "(?x)\n  \\s*(class)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (:|\\(|\\[)\n    )\n",
 					"end": "(:)",
 					"beginCaptures": {
 						"1": {
@@ -1006,6 +1003,36 @@
 						},
 						{
 							"include": "#class-inheritance"
+						},
+						{
+							"include": "#type-params"
+						}
+					]
+				}
+			]
+		},
+		"type-alias": {
+			"patterns": [
+				{
+					"name": "meta.class.python",
+					"begin": "(?x)\n  \\s*(type)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (=|\\[)\n    )\n",
+					"end": "(=)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.type.class.python"
+						}
+					},
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.section.class.begin.python"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#class-name"
+						},
+						{
+							"include": "#type-params"
 						}
 					]
 				}
@@ -1249,7 +1276,7 @@
 		},
 		"function-declaration": {
 			"name": "meta.function.python",
-			"begin": "(?x)\n  \\s*\n  (?:\\b(async) \\s+)? \\b(def)\\s+\n    (?=\n      [[:alpha:]_][[:word:]]* \\s* \\(\n    )\n",
+			"begin": "(?x)\n  \\s*\n  (?:\\b(async) \\s+)? \\b(def)\\s+\n    (?=\n      [[:alpha:]_][[:word:]]* \\s* [\\[\\(]\n    )\n",
 			"end": "(:|(?=[#'\"\\n]))",
 			"beginCaptures": {
 				"1": {
@@ -1270,6 +1297,9 @@
 				},
 				{
 					"include": "#parameters"
+				},
+				{
+					"include": "#type-params"
 				},
 				{
 					"include": "#line-continuation"
@@ -1329,7 +1359,7 @@
 					"include": "#parameter-special"
 				},
 				{
-					"match": "(?x)\n  ([[:alpha:]_]\\w*)\n    \\s* (?: (,) | (?=[)#\\n=]))\n",
+					"match": "(?x)\n  ([[:alpha:]_]\\w*)\n    \\s* (?: (,) | (?=[)#\\n=:]))\n",
 					"captures": {
 						"1": {
 							"name": "variable.parameter.function.language.python"
@@ -1346,7 +1376,54 @@
 					"include": "#loose-default"
 				},
 				{
-					"include": "#annotated-parameter"
+					"include": "#loose-annotation"
+				}
+			]
+		},
+		"type-params": {
+			"name": "meta.function.parameters.python",
+			"begin": "(\\[)",
+			"end": "(\\])",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.parameters.begin.python"
+				}
+			},
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.parameters.end.python"
+				}
+			},
+			"patterns": [
+				{
+					"name": "keyword.operator.unpacking.parameter.python",
+					"match": "(\\*\\*|\\*)"
+				},
+				{
+					"include": "#illegal-names"
+				},
+				{
+					"include": "#illegal-object-name"
+				},
+				{
+					"match": "(?x)\n  ([[:alpha:]_]\\w*)\n    \\s* (?: (,) | (?=[\\]#\\n=:]))\n",
+					"captures": {
+						"1": {
+							"name": "variable.parameter.function.language.python"
+						},
+						"2": {
+							"name": "punctuation.separator.parameters.python"
+						}
+					}
+				},
+				{
+					"include": "#comments"
+				},
+				{
+					"include": "#loose-default"
+				},
+				{
+					"include": "#loose-annotation"
 				}
 			]
 		},
@@ -1369,7 +1446,7 @@
 		},
 		"loose-default": {
 			"begin": "(=)",
-			"end": "(,)|(?=\\))",
+			"end": "(,)|(?=\\)|])",
 			"beginCaptures": {
 				"1": {
 					"name": "keyword.operator.python"
@@ -1386,15 +1463,12 @@
 				}
 			]
 		},
-		"annotated-parameter": {
-			"begin": "(?x)\n  \\b\n  ([[:alpha:]_]\\w*) \\s* (:)\n",
-			"end": "(,)|(?=\\))",
+		"loose-annotation": {
+			"begin": "(:)",
+			"end": "(,)|(?=\\)|])",
 			"beginCaptures": {
 				"1": {
-					"name": "variable.parameter.function.language.python"
-				},
-				"2": {
-					"name": "punctuation.separator.annotation.python"
+					"name": "keyword.operator.python"
 				}
 			},
 			"endCaptures": {
@@ -1405,10 +1479,6 @@
 			"patterns": [
 				{
 					"include": "#expression"
-				},
-				{
-					"name": "keyword.operator.assignment.python",
-					"match": "=(?!=)"
 				}
 			]
 		},
