@@ -13,6 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: nhedger/package-vscode-extension@v1
+      id: package
     - uses: ncipollo/release-action@v1
       with:
         artifacts: ${{ steps.package.outputs.packagePath }}
